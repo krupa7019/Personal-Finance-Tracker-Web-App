@@ -85,14 +85,20 @@
                 <div class="mb-3">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" class="form-control" name="password" id="regPassword" placeholder="Password" required minlength="6">
+                        <input type="password" class="form-control" name="password" id="regPassword" 
+                               placeholder="Password" required 
+                               pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}"
+                               title="Must contain at least 8 characters, one uppercase, one lowercase, one number and one special character">
                     </div>
+                    <div id="passwordFeedback" class="form-text"></div>
                 </div>
                 <div class="mb-3">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" class="form-control" name="confirmPassword" id="regConfirmPassword" placeholder="Confirm Password" required minlength="6">
+                        <input type="password" class="form-control" name="confirmPassword" id="regConfirmPassword" 
+                               placeholder="Confirm Password" required>
                     </div>
+                    <div id="confirmPasswordFeedback" class="form-text"></div>
                 </div>
                 <div class="d-grid gap-2 mb-3">
                     <button type="submit" class="btn btn-primary">
@@ -168,24 +174,86 @@
             alertElement.classList.add('hidden');
         }
 
+        // Validation functions
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function isValidPassword(password) {
+            // At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            return passwordRegex.test(password);
+        }
+
+        function isValidName(name) {
+            // Only letters, spaces, and hyphens, at least 2 characters
+            const nameRegex = /^[A-Za-z\s-]{2,}$/;
+            return nameRegex.test(name);
+        }
+
+        // Real-time validation
+        document.getElementById('regPassword').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const feedback = document.getElementById('passwordFeedback');
+            if (password.length < 8) {
+                feedback.innerHTML = 'Password must be at least 8 characters long';
+                feedback.className = 'text-danger small';
+            } else if (!password.match(/[A-Z]/)) {
+                feedback.innerHTML = 'Password must contain at least one uppercase letter';
+                feedback.className = 'text-danger small';
+            } else if (!password.match(/[a-z]/)) {
+                feedback.innerHTML = 'Password must contain at least one lowercase letter';
+                feedback.className = 'text-danger small';
+            } else if (!password.match(/[0-9]/)) {
+                feedback.innerHTML = 'Password must contain at least one number';
+                feedback.className = 'text-danger small';
+            } else if (!password.match(/[@$!%*?&]/)) {
+                feedback.innerHTML = 'Password must contain at least one special character (@$!%*?&)';
+                feedback.className = 'text-danger small';
+            } else {
+                feedback.innerHTML = 'Password strength: Strong';
+                feedback.className = 'text-success small';
+            }
+        });
+
+        document.getElementById('regConfirmPassword').addEventListener('input', function(e) {
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = e.target.value;
+            const feedback = document.getElementById('confirmPasswordFeedback');
+            
+            if (password !== confirmPassword) {
+                feedback.innerHTML = 'Passwords do not match';
+                feedback.className = 'text-danger small';
+            } else {
+                feedback.innerHTML = 'Passwords match';
+                feedback.className = 'text-success small';
+            }
+        });
+
         function handleLogin(event) {
             event.preventDefault();
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            // Here you would typically make an API call to your backend
-            // For now, we'll simulate a successful login
-            if (email && password) {
-                showAlert('Login successful!');
-                // Store login state
-                localStorage.setItem('userLoggedIn', 'true');
-                // Redirect to dashboard
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
-            } else {
-                showAlert('Please fill in all fields', false);
+            // Validate email
+            if (!isValidEmail(email)) {
+                showAlert('Please enter a valid email address', false);
+                return;
             }
+
+            // Validate password
+            if (!password) {
+                showAlert('Please enter your password', false);
+                return;
+            }
+
+            // Here you would typically make an API call to your backend
+            showAlert('Login successful!');
+            localStorage.setItem('userLoggedIn', 'true');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
         }
 
         function handleRegistration(event) {
@@ -195,37 +263,52 @@
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
 
+            // Validate full name
+            if (!isValidName(fullName)) {
+                showAlert('Please enter a valid name (only letters, spaces, and hyphens allowed)', false);
+                return;
+            }
+
+            // Validate email
+            if (!isValidEmail(email)) {
+                showAlert('Please enter a valid email address', false);
+                return;
+            }
+
+            // Validate password
+            if (!isValidPassword(password)) {
+                showAlert('Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character', false);
+                return;
+            }
+
+            // Check password match
             if (password !== confirmPassword) {
                 showAlert('Passwords do not match', false);
                 return;
             }
 
-            // Here you would typically make an API call to your backend
-            // For now, we'll simulate a successful registration
-            if (fullName && email && password) {
-                showAlert('Registration successful! Please login.');
-                setTimeout(() => {
-                    showForm('login');
-                }, 2000);
-            } else {
-                showAlert('Please fill in all fields', false);
-            }
+            // All validations passed
+            showAlert('Registration successful! Please login.');
+            setTimeout(() => {
+                showForm('login');
+            }, 2000);
         }
 
         function handleForgotPassword(event) {
             event.preventDefault();
             const email = document.getElementById('resetEmail').value;
 
-            // Here you would typically make an API call to your backend
-            // For now, we'll simulate a successful password reset request
-            if (email) {
-                showAlert('Password reset link has been sent to your email!');
-                setTimeout(() => {
-                    showForm('login');
-                }, 2000);
-            } else {
-                showAlert('Please enter your email', false);
+            // Validate email
+            if (!isValidEmail(email)) {
+                showAlert('Please enter a valid email address', false);
+                return;
             }
+
+            // Simulate password reset request
+            showAlert('Password reset link has been sent to your email!');
+            setTimeout(() => {
+                showForm('login');
+            }, 2000);
         }
     </script>
 </body>

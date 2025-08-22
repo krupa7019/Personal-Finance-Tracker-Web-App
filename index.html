@@ -1,1 +1,232 @@
-This is my first file.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Tracker - Authentication</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="App.css">
+    <style>
+        .form-container {
+            max-width: 400px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .form-container h2 {
+            text-align: center;
+            color: #2980b9;
+            margin-bottom: 1.5rem;
+        }
+        .form-control:focus {
+            border-color: #2980b9;
+            box-shadow: 0 0 0 0.2rem rgba(41, 128, 185, 0.25);
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <div class="container">
+        <!-- Alert Message -->
+        <div id="alertMessage" class="alert hidden"></div>
+
+        <!-- Login Form -->
+        <div class="form-container" id="loginForm">
+            <h2><i class="fas fa-user-circle mb-3"></i><br>Login</h2>
+            <form id="loginFormElement" onsubmit="handleLogin(event)">
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="email" class="form-control" name="email" id="loginEmail" placeholder="Email" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" name="password" id="loginPassword" placeholder="Password" required>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </button>
+                </div>
+                <div class="text-center">
+                    <a href="#" class="text-decoration-none" onclick="showForm('forgotPassword')">Forgot Password?</a>
+                    <hr>
+                    <a href="#" class="btn btn-success" onclick="showForm('register')">
+                        <i class="fas fa-user-plus me-2"></i>Create New Account
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="form-container hidden" id="registerForm">
+            <h2><i class="fas fa-user-plus mb-3"></i><br>Create Account</h2>
+            <form id="registerFormElement" onsubmit="handleRegistration(event)">
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" class="form-control" name="fullName" id="regFullName" placeholder="Full Name" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="email" class="form-control" name="email" id="regEmail" placeholder="Email" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" name="password" id="regPassword" placeholder="Password" required minlength="6">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" name="confirmPassword" id="regConfirmPassword" placeholder="Confirm Password" required minlength="6">
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </button>
+                </div>
+                <div class="text-center">
+                    <a href="#" class="btn btn-outline-primary" onclick="showForm('login')">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Login
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div class="form-container hidden" id="forgotPasswordForm">
+            <h2><i class="fas fa-key mb-3"></i><br>Reset Password</h2>
+            <form id="forgotPasswordFormElement" onsubmit="handleForgotPassword(event)">
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="email" class="form-control" name="email" id="resetEmail" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Send Reset Link
+                    </button>
+                </div>
+                <div class="text-center">
+                    <a href="#" class="btn btn-outline-primary" onclick="showForm('login')">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Login
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function showForm(formId) {
+            // Hide all forms
+            document.querySelectorAll('.form-container').forEach(form => {
+                form.classList.add('hidden');
+            });
+            
+            // Show the selected form
+            const selectedForm = document.getElementById(formId + 'Form');
+            if (selectedForm) {
+                selectedForm.classList.remove('hidden');
+            }
+
+            // Hide any existing alert
+            hideAlert();
+        }
+
+        function showAlert(message, isSuccess = true) {
+            const alertElement = document.getElementById('alertMessage');
+            alertElement.textContent = message;
+            alertElement.classList.remove('hidden', 'alert-success', 'alert-error');
+            alertElement.classList.add(isSuccess ? 'alert-success' : 'alert-error');
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                hideAlert();
+            }, 3000);
+        }
+
+        function hideAlert() {
+            const alertElement = document.getElementById('alertMessage');
+            alertElement.classList.add('hidden');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Here you would typically make an API call to your backend
+            // For now, we'll simulate a successful login
+            if (email && password) {
+                showAlert('Login successful!');
+                // Store login state
+                localStorage.setItem('userLoggedIn', 'true');
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            } else {
+                showAlert('Please fill in all fields', false);
+            }
+        }
+
+        function handleRegistration(event) {
+            event.preventDefault();
+            const fullName = document.getElementById('regFullName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', false);
+                return;
+            }
+
+            // Here you would typically make an API call to your backend
+            // For now, we'll simulate a successful registration
+            if (fullName && email && password) {
+                showAlert('Registration successful! Please login.');
+                setTimeout(() => {
+                    showForm('login');
+                }, 2000);
+            } else {
+                showAlert('Please fill in all fields', false);
+            }
+        }
+
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+
+            // Here you would typically make an API call to your backend
+            // For now, we'll simulate a successful password reset request
+            if (email) {
+                showAlert('Password reset link has been sent to your email!');
+                setTimeout(() => {
+                    showForm('login');
+                }, 2000);
+            } else {
+                showAlert('Please enter your email', false);
+            }
+        }
+    </script>
+</body>
+</html>
